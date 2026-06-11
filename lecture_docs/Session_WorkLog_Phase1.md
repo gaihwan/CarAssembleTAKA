@@ -1,15 +1,4 @@
-# CarAssemble 세션 작업 기록 — 인덱스
-
-> 각 Phase별 상세 내용은 아래 파일을 참조한다.
-
-| 파일 | 내용 |
-|------|------|
-| [Session_WorkLog_Phase1.md](Session_WorkLog_Phase1.md) | 초기 설정 + Phase 1 (Method Level) 리팩토링 전체 기록 |
-| [Session_WorkLog_Phase2.md](Session_WorkLog_Phase2.md) | Phase 2 (Module Level) 리팩토링 전체 기록 |
-
----
-
-# 전체 세션 작업 기록 (통합본)
+# CarAssemble 세션 작업 기록 — Phase 1 (초기 설정 + Method Level 리팩토링)
 
 ---
 
@@ -632,7 +621,7 @@ test/test_phase1.cpp: 17 GMock tests covering P1-T1, P1-T2, P1-T3 — all PASS
 
 ---
 
-## 7. lecture_docs 파일 저장 요청 (2차 — 본 파일)
+## 7. lecture_docs 파일 저장 요청 (2차 — Session_WorkLog 최초 생성)
 
 **사용자 요청:**
 > 아니. 이 창을 통해 작업한 내용을 그대로 순서대로 정리(요약은 가능한 하지 말고...) 해서 md 파일로 저장해달라는 요청이었어.
@@ -650,160 +639,7 @@ test/test_phase1.cpp: 17 GMock tests covering P1-T1, P1-T2, P1-T3 — all PASS
 
 ---
 
----
-
-## 9. Phase 2 리팩토링 실행
-
-**사용자 요청:**
-> 좋아. Phase 2도 동일하게 진행해주고, unittest 도 진행해주고, history 문서까지 남겨줘.
-
-**작업 흐름:** Phase 2-1 파일 분리 → Phase 2-2 CarConfig 구조체 도입 → test_phase1.cpp 수정 → test_phase2.cpp 작성 → 빌드 → 28/28 PASS → commit → lecture_docs 저장
-
----
-
-### Phase 2-1: 파일 분리
-
-`main.cpp` 단일 파일에서 책임별로 분리:
-
-| 파일 | 역할 |
-|------|------|
-| `car_config.h` | 모든 enum, 문자열 상수, CarConfig 구조체 정의 |
-| `validator.h` / `validator.cpp` | 5개 규칙 함수 + isValidCheck() |
-| `car_runner.h` / `car_runner.cpp` | selectXxx(), runCar(), runTest() |
-| `main.cpp` | `#ifdef _DEBUG` → GMock 러너 / `#else` → UI 루프만 |
-
-`CarAssemble.vcxproj` 업데이트:
-```xml
-<!-- 항상 컴파일 -->
-<ClCompile Include="car_runner.cpp" />
-<ClCompile Include="validator.cpp" />
-<!-- Debug 전용 -->
-<ClCompile Include="test\test_phase2.cpp">
-  <ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild>
-</ClCompile>
-<!-- 헤더 등록 -->
-<ClInclude Include="car_config.h" />
-<ClInclude Include="car_runner.h" />
-<ClInclude Include="validator.h" />
-```
-
----
-
-### Phase 2-2: 전역 stack[] → CarConfig 구조체
-
-**before:**
-```cpp
-int stack[10];   // 전역 배열로 상태 관리
-// stack[CarType_Q], stack[Engine_Q] ... 로 접근
-```
-
-**after (car_config.h):**
-```cpp
-struct CarConfig {
-    CarType        carType  = static_cast<CarType>(0);
-    Engine         engine   = static_cast<Engine>(0);
-    brakeSystem    brake    = static_cast<brakeSystem>(0);
-    SteeringSystem steering = static_cast<SteeringSystem>(0);
-};
-```
-
-함수 시그니처 변경:
-
-| 파일 | Before | After |
-|------|--------|-------|
-| validator.cpp | `bool isSedanContinentalConflict()` (전역 stack 접근) | `bool isSedanContinentalConflict(const CarConfig& c)` |
-| car_runner.cpp | `void selectCarType(int answer)` | `void selectCarType(CarConfig& config, int answer)` |
-| main.cpp | `selectCarType(answer)` | `selectCarType(config, answer)` |
-
----
-
-### test_phase1.cpp 수정 (Phase 2 함수 시그니처 변경 대응)
-
-Phase 1에서 `extern int stack[]` + 인수 없는 extern 함수 방식이었으나,  
-Phase 2에서 함수 시그니처가 `const CarConfig&`로 변경되어 재작성:
-
-```cpp
-// Before (Phase 1 방식)
-extern int stack[];
-extern bool isSedanContinentalConflict();  // 인수 없음
-
-// After (Phase 2 방식)
-#include "../car_config.h"
-#include "../validator.h"
-
-TEST(RuleTest, SedanContinental_DetectsConflict) {
-    CarConfig c;
-    c.carType = SEDAN;
-    c.brake = CONTINENTAL;
-    EXPECT_TRUE(isSedanContinentalConflict(c));
-}
-```
-
-17개 테스트 모두 `CarConfig` API 방식으로 재작성 → 동일하게 17 PASS
-
----
-
-### test/test_phase2.cpp 작성 (신규)
-
-**[P2-T1] CarConfig 구조체 기본 초기화 — 3개 테스트:**
-- `DefaultInitialization`: `CarConfig{}` 기본값이 모두 0인지 확인
-- `FieldAssignment`: 각 필드에 enum 값 대입 후 조회
-- `AggregateInitialization`: `CarConfig{ TRUCK, WIA, BOSCH_B, MOBIS }` 집합 초기화
-
-**[P2-T2] isValidCheck(CarConfig) — 8개 테스트:**
-- Rule 1~5 각각 false 반환 확인 (5개)
-- 유효한 조합 3개: AllRulesPass, TruckValidCombination, BoschBrakeWithBoschSteer → true 반환
-
----
-
-### 빌드 및 테스트 실행 결과
-
-```
-MSBuild CarAssemble.sln /p:Configuration=Debug /p:Platform=x64
-빌드 결과: 성공
-
-[==========] Running 28 tests from 5 test suites.
-[----------] 1 test from EnumTest          → 1 PASSED
-[----------] 10 tests from RuleTest        → 10 PASSED
-[----------] 6 tests from ValidCheckTest   → 6 PASSED
-[----------] 3 tests from CarConfigTest    → 3 PASSED
-[----------] 8 tests from CarConfigValidationTest → 8 PASSED
-[==========] 28 tests from 5 test suites ran.
-[  PASSED  ] 28 tests.
-```
-
----
-
-### Phase 2 commit
-
-```
-refactor: Phase 2 - module level separation + CarConfig struct (all 28 tests PASS)
-
-Phase 2-1: extract validator.h/cpp, car_runner.h/cpp from main.cpp
-Phase 2-2: replace global stack[] with CarConfig struct
-           - all validator/runner functions now take const CarConfig& or CarConfig&
-           - main() declares local CarConfig config and passes it to functions
-
-test: update test_phase1.cpp to use CarConfig API (extern stack[] approach removed)
-test: add test_phase2.cpp with 11 new tests (P2-T1 struct init, P2-T2 isValidCheck)
-```
-
-커밋 해시: `e7df427`
-
----
-
-### Phase 2 lecture_docs 파일 저장
-
-| 파일 | 내용 |
-|------|------|
-| `lecture_docs/Phase2_car_config_h.md` | car_config.h 전체 소스 |
-| `lecture_docs/Phase2_validator.md` | validator.h + validator.cpp 전체 소스 |
-| `lecture_docs/Phase2_car_runner.md` | car_runner.h + car_runner.cpp 전체 소스 |
-| `lecture_docs/Phase2_main_and_test.md` | main.cpp (Phase 2) + test_phase2.cpp 전체 소스 |
-
----
-
-## Git 커밋 히스토리 (세션 종료 시점)
+## Git 커밋 히스토리 (Phase 1 완료 시점)
 
 | 커밋 해시 | 메시지 |
 |-----------|--------|
@@ -812,4 +648,3 @@ test: add test_phase2.cpp with 11 new tests (P2-T1 struct init, P2-T2 isValidChe
 | `206c98c` | refactor: Phase 1 - method level cleanup (all 17 tests PASS) |
 | `fd26d2d` | docs: add Phase1 source snapshots to lecture_docs |
 | `69bec13` | docs: add session work log to lecture_docs |
-| `e7df427` | refactor: Phase 2 - module level separation + CarConfig struct (all 28 tests PASS) |
