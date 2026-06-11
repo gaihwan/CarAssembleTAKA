@@ -4,7 +4,8 @@
 
 ## 1. OCP 적용 리팩토링 플랜 수립
 
-**요청:** Car_type, Engine_type, brake_system, steering_subsystem의 제약조건을 적용하여 OCP가 적용된 확장성 높은 구조로 리팩토링되도록 plan 수립
+**사용자 요청:**
+> Car_type, Engine_type, brake_system, steering_substem 의 제약조건등을 적용 시켜셔 OCP가 적용된 확장성 높은 구조를 refactoring 되도록 다시 plan을 세워봐.
 
 **현재 코드 분석 결과:**
 
@@ -36,7 +37,8 @@ enum SteeringSystem { BOSCH_S=1, MOBIS };
 
 ## 2. GitHub Remote Repository 연결
 
-**요청:** https://github.com/gaihwan/CarAssembleTAKA.git 에 현재 프로젝트 연결
+**사용자 요청:**
+> https://github.com/gaihwan/CarAssembleTAKA.git에 지금 작업하고 있는 코드를 연동하기 위한 github remote repository를 만들었어. 현재 CarAssemble Project를 이 git hub에 clone을 하여 연결해줘.
 
 **실행 순서:**
 
@@ -100,13 +102,28 @@ packages/
 
 ---
 
-## 3. PLANS.md / TEST_PLANS.md / CLAUDE.md 작성
+## 3. 현재 상태 커밋 확인
 
-**요청:**
-- `temp_docs/PLAN.md` → `temp_docs/PLANS.md` 로 파일명 변경
-- `PLANS.md`를 `CLAUDE.md`에 연결
-- GMock 기반 unit test 수행 계획을 `temp_docs/TEST_PLANS.md`로 작성
-- `TEST_PLANS.md`도 `CLAUDE.md`에 연결
+**사용자 요청:**
+> 그럼 현재 상태로 커밋을 한번 해줘.
+
+**결과:**
+
+```
+On branch master
+Your branch is up to date with 'origin/master'.
+nothing to commit, working tree clean
+```
+
+초기 커밋에서 모든 파일이 이미 포함되어 있어 변경사항 없음.
+
+---
+
+## 4. PLANS.md / TEST_PLANS.md / CLAUDE.md 작성
+
+**사용자 요청:**
+> 지금 이 프로젝트를 refactoring 할 건데, 이와 관련된 내용은 이미 temp_dos/PLAN.md에 작성되어 있어. 이 파일 이름은 PLANS.md로 변경해줘. 이 PLANS.md 파일은 CLAUDE.md에 연결해줘.
+> 그리고 이 plan대로 refactoring 하기 위해, gmoc으로 기본 세팅되어 있는 unit test를 이용하여, refactoring 관련 unit test 수행 계획도 temp_docs/TEST_PLANS.md로 작성해주고 이 또한 CLAUDE.md에 연결해줘. 이를 이용하여 앞으로, PLAN에 나와있는 Phase 단계에 따라 코드를 refacotring하고, unit test를 진행한후, 문제가 없으면, commit을 하는 순서로 진행할 거야. 일단 PLANS.md와 연계된 unit test 계획부터 세워줘.
 
 **.gitignore 수정** (temp_docs/ 제외 항목 삭제 → git 추적 대상으로 변경):
 
@@ -127,7 +144,7 @@ rm temp_docs/PLAN.md
 
 ---
 
-### 3-1. temp_docs/TEST_PLANS.md 전체 내용
+### 4-1. temp_docs/TEST_PLANS.md 전체 내용
 
 ```markdown
 # CarAssemble Unit Test Plan (GMock)
@@ -229,11 +246,11 @@ TEST(CarAssemblerTest, SelectEngine_StoresCorrectly)      { ... }
 
 ## Phase별 테스트 통과 기준 & Commit 조건
 
-| Phase   | 테스트 파일      | 통과 기준          | Commit 메시지 예시                              |
-|---------|-----------------|-------------------|-------------------------------------------------|
-| Phase 1 | test_phase1.cpp | P1-T1, T2, T3 통과 | refactor: add BROKEN enum, extract rule functions |
-| Phase 2 | test_phase2.cpp | P2-T1, T2 통과     | refactor: replace stack[] with CarConfig struct   |
-| Phase 3 | test_phase3.cpp | P3-T1, T2 통과     | refactor: implement CarValidator, CarAssembler    |
+| Phase   | 테스트 파일      | 통과 기준           | Commit 메시지 예시                                |
+|---------|-----------------|---------------------|---------------------------------------------------|
+| Phase 1 | test_phase1.cpp | P1-T1, T2, T3 통과  | refactor: add BROKEN enum, extract rule functions |
+| Phase 2 | test_phase2.cpp | P2-T1, T2 통과      | refactor: replace stack[] with CarConfig struct   |
+| Phase 3 | test_phase3.cpp | P3-T1, T2 통과      | refactor: implement CarValidator, CarAssembler    |
 
 ## GMock 테스트 프로젝트 설정 (Visual Studio)
 
@@ -253,7 +270,7 @@ int main(int argc, char** argv) {
 
 ---
 
-### 3-2. CLAUDE.md 전체 내용
+### 4-2. CLAUDE.md 전체 내용
 
 ```markdown
 # CarAssemble Project — Claude Instructions
@@ -264,10 +281,10 @@ Visual Studio C++ 자동차 조립 선택 프로그램.
 
 ## 핵심 문서
 
-| 문서           | 경로                    | 용도                        |
-|--------------|-------------------------|-----------------------------|
-| 리팩토링 계획 | temp_docs/PLANS.md      | Phase별 리팩토링 작업 정의  |
-| 테스트 계획   | temp_docs/TEST_PLANS.md | Phase별 GMock 단위 테스트 케이스 |
+| 문서           | 경로                    | 용도                             |
+|----------------|-------------------------|----------------------------------|
+| 리팩토링 계획  | temp_docs/PLANS.md      | Phase별 리팩토링 작업 정의       |
+| 테스트 계획    | temp_docs/TEST_PLANS.md | Phase별 GMock 단위 테스트 케이스 |
 
 ## 작업 진행 규칙
 
@@ -280,17 +297,17 @@ Visual Studio C++ 자동차 조립 선택 프로그램.
 
 ## Phase 진행 현황
 
-| Phase     | 내용                           | 상태 |
-|-----------|--------------------------------|------|
-| Phase 1-1 | 함수명 네이밍 통일              | 대기 |
-| Phase 1-2 | 매직 넘버 BROKEN enum 추가      | 대기 |
-| Phase 1-3 | 규칙별 검증 함수 분리           | 대기 |
-| Phase 1-4 | 출력 문자열 상수화              | 대기 |
-| Phase 2-1 | 파일 분리 (validator, car_runner)| 대기 |
-| Phase 2-2 | 전역 stack[] → CarConfig 구조체 | 대기 |
-| Phase 3-1 | IValidator 인터페이스 추출      | 대기 |
-| Phase 3-2 | CarValidator 클래스 구현        | 대기 |
-| Phase 3-3 | CarAssembler 클래스 구현        | 대기 |
+| Phase     | 내용                            | 상태 |
+|-----------|---------------------------------|------|
+| Phase 1-1 | 함수명 네이밍 통일               | 대기 |
+| Phase 1-2 | 매직 넘버 BROKEN enum 추가       | 대기 |
+| Phase 1-3 | 규칙별 검증 함수 분리            | 대기 |
+| Phase 1-4 | 출력 문자열 상수화               | 대기 |
+| Phase 2-1 | 파일 분리 (validator, car_runner) | 대기 |
+| Phase 2-2 | 전역 stack[] → CarConfig 구조체  | 대기 |
+| Phase 3-1 | IValidator 인터페이스 추출       | 대기 |
+| Phase 3-2 | CarValidator 클래스 구현         | 대기 |
+| Phase 3-3 | CarAssembler 클래스 구현         | 대기 |
 
 ## 주요 파일
 - main.cpp — 현재 전체 소스 (리팩토링 대상)
@@ -305,7 +322,7 @@ Visual Studio C++ 자동차 조립 선택 프로그램.
 
 ---
 
-### 3-3. commit
+### 4-3. commit
 
 ```
 docs: add CLAUDE.md, PLANS.md, TEST_PLANS.md for refactoring workflow
@@ -318,7 +335,10 @@ docs: add CLAUDE.md, PLANS.md, TEST_PLANS.md for refactoring workflow
 
 ---
 
-## 4. Phase 1 리팩토링 실행
+## 5. Phase 1 리팩토링 실행
+
+**사용자 요청:**
+> unit test와 연계된 plan에 따른 refactoring 처음 단계 시작해줘.
 
 **작업 흐름:** Phase 1-1 → 1-2 → 1-3 → 1-4 → 테스트 빌드 → 17/17 PASS → commit
 
@@ -402,12 +422,35 @@ bool isValidCheck()
 ```cpp
 void runTest()
 {
-    if (isSedanContinentalConflict())      { printf("FAIL\n"); printf("Sedan에는 Continental제동장치 사용 불가\n"); }
-    else if (isSuvToyotaConflict())        { printf("FAIL\n"); printf("SUV에는 TOYOTA엔진 사용 불가\n"); }
-    else if (isTruckWiaConflict())         { printf("FAIL\n"); printf("Truck에는 WIA엔진 사용 불가\n"); }
-    else if (isTruckMandoConflict())       { printf("FAIL\n"); printf("Truck에는 Mando제동장치 사용 불가\n"); }
-    else if (isBoschBrakeWithoutBoschSteer()) { printf("FAIL\n"); printf("Bosch제동장치에는 Bosch조향장치 이외 사용 불가\n"); }
-    else                                   { printf("PASS\n"); }
+    if (isSedanContinentalConflict())
+    {
+        printf("자동차 부품 조합 테스트 결과 : FAIL\n");
+        printf("Sedan에는 Continental제동장치 사용 불가\n");
+    }
+    else if (isSuvToyotaConflict())
+    {
+        printf("자동차 부품 조합 테스트 결과 : FAIL\n");
+        printf("SUV에는 TOYOTA엔진 사용 불가\n");
+    }
+    else if (isTruckWiaConflict())
+    {
+        printf("자동차 부품 조합 테스트 결과 : FAIL\n");
+        printf("Truck에는 WIA엔진 사용 불가\n");
+    }
+    else if (isTruckMandoConflict())
+    {
+        printf("자동차 부품 조합 테스트 결과 : FAIL\n");
+        printf("Truck에는 Mando제동장치 사용 불가\n");
+    }
+    else if (isBoschBrakeWithoutBoschSteer())
+    {
+        printf("자동차 부품 조합 테스트 결과 : FAIL\n");
+        printf("Bosch제동장치에는 Bosch조향장치 이외 사용 불가\n");
+    }
+    else
+    {
+        printf("자동차 부품 조합 테스트 결과 : PASS\n");
+    }
 }
 ```
 
@@ -566,7 +609,37 @@ test/test_phase1.cpp: 17 GMock tests covering P1-T1, P1-T2, P1-T3 — all PASS
 
 ---
 
-## 5. Git 커밋 히스토리 (세션 종료 시점)
+## 6. lecture_docs 파일 저장 요청 (1차)
+
+**사용자 요청:**
+> Phase1 에서 작업한 내용을 raw 파일 내용 그대로 lecture_docs 폴더에 적당한 이름으로 md 파일로 저장해줘.
+
+**처리 결과:** `main.cpp`, `test/test_phase1.cpp` 파일 내용을 코드 블록으로 감싸서 저장
+
+- `lecture_docs/Phase1_main.md`
+- `lecture_docs/Phase1_test.md`
+
+---
+
+## 7. lecture_docs 파일 저장 요청 (2차 — 본 파일)
+
+**사용자 요청:**
+> 아니. 이 창을 통해 작업한 내용을 그대로 순서대로 정리(요약은 가능한 하지 말고...) 해서 md 파일로 저장해달라는 요청이었어.
+
+**처리 결과:** `lecture_docs/Session_WorkLog.md` 생성 (세션 전체 작업 내용 순서대로 기록)
+
+---
+
+## 8. 사용자 요청 포함 재저장
+
+**사용자 요청:**
+> 내가 입력한 요청사항도 같이 추가해서 저장해줘.
+
+**처리 결과:** `Session_WorkLog.md` 전체를 사용자 요청 인용문 포함하여 재작성
+
+---
+
+## Git 커밋 히스토리 (세션 종료 시점)
 
 | 커밋 해시 | 메시지 |
 |-----------|--------|
@@ -574,3 +647,4 @@ test/test_phase1.cpp: 17 GMock tests covering P1-T1, P1-T2, P1-T3 — all PASS
 | `8b51cf1` | docs: add CLAUDE.md, PLANS.md, TEST_PLANS.md for refactoring workflow |
 | `206c98c` | refactor: Phase 1 - method level cleanup (all 17 tests PASS) |
 | `fd26d2d` | docs: add Phase1 source snapshots to lecture_docs |
+| `69bec13` | docs: add session work log to lecture_docs |
