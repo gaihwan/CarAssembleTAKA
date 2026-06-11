@@ -6,6 +6,7 @@
 |------|------|
 | [Session_WorkLog_Phase1.md](Session_WorkLog_Phase1.md) | 초기 설정 + Phase 1 (Method Level) 리팩토링 전체 기록 |
 | [Session_WorkLog_Phase2.md](Session_WorkLog_Phase2.md) | Phase 2 (Module Level) 리팩토링 전체 기록 |
+| [Session_WorkLog_Phase3.md](Session_WorkLog_Phase3.md) | Phase 3 (Class Level / OCP) 리팩토링 전체 기록 |
 
 ---
 
