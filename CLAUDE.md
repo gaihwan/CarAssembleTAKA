@@ -1,8 +1,8 @@
 # CarAssemble Project — Claude Instructions
 
 ## 프로젝트 개요
-Visual Studio C++ 자동차 조립 선택 프로그램.  
-현재 절차적 단일 파일(`main.cpp`) 구조를 OOP + GMock 테스트 가능한 구조로 리팩토링 진행 중.
+Visual Studio C++ 자동차 조립 선택 프로그램.
+절차적 단일 파일(`main.cpp`) 구조에서 OOP + GMock 테스트 가능한 구조로 리팩토링 완료.
 
 ## 핵심 문서
 
@@ -26,20 +26,36 @@ Visual Studio C++ 자동차 조립 선택 프로그램.
 
 | Phase | 내용 | 상태 |
 |-------|------|------|
-| Phase 1-1 | 함수명 네이밍 통일 | 대기 |
-| Phase 1-2 | 매직 넘버 BROKEN enum 추가 | 대기 |
-| Phase 1-3 | 규칙별 검증 함수 분리 | 대기 |
-| Phase 1-4 | 출력 문자열 상수화 | 대기 |
-| Phase 2-1 | 파일 분리 (validator, car_runner) | 대기 |
-| Phase 2-2 | 전역 stack[] → CarConfig 구조체 | 대기 |
-| Phase 3-1 | IValidator 인터페이스 추출 | 대기 |
-| Phase 3-2 | CarValidator 클래스 구현 | 대기 |
-| Phase 3-3 | CarAssembler 클래스 구현 | 대기 |
+| Phase 1-1 | 함수명 네이밍 통일 | 완료 |
+| Phase 1-2 | 매직 넘버 BROKEN enum 추가 | 완료 |
+| Phase 1-3 | 규칙별 검증 함수 분리 | 완료 |
+| Phase 1-4 | 출력 문자열 상수화 | 완료 |
+| Phase 2-1 | 파일 분리 (validator, car_runner) | 완료 |
+| Phase 2-2 | 전역 stack[] → CarConfig 구조체 | 완료 |
+| Phase 3-1 | IValidator 인터페이스 추출 | 완료 |
+| Phase 3-2 | CarValidator 클래스 구현 | 완료 |
+| Phase 3-3 | CarAssembler 클래스 구현 | 완료 |
 
-## 주요 파일
-- `main.cpp` — 현재 전체 소스 (리팩토링 대상)
-- `packages.config` — gmock 1.11.0 NuGet 패키지 등록됨
-- `CarAssemble.vcxproj` — Visual Studio 프로젝트 파일
+**전체 테스트: 41/41 PASS** (Phase 1: 17 + Phase 2: 11 + Phase 3: 13)
+
+## 현재 파일 구조
+
+```
+CarAssemble/
+├── car_config.h          ← enum + 상수 + CarConfig 구조체
+├── IValidator.h          ← 검증 인터페이스 (OCP 핵심)
+├── CarValidator.h/.cpp   ← 구체 검증 구현 (5개 규칙 캡슐화)
+├── CarAssembler.h/.cpp   ← 조립 로직 + IValidator 의존성 주입
+├── validator.h/.cpp      ← 자유 함수 (Phase 1/2 호환 유지)
+├── car_runner.h/.cpp     ← 자유 함수 (Phase 2 호환 유지)
+├── main.cpp              ← UI 루프 (CarValidator + CarAssembler 사용)
+├── packages.config       ← gmock 1.11.0 NuGet 패키지
+├── CarAssemble.vcxproj   ← Visual Studio 프로젝트 파일
+└── test/
+    ├── test_phase1.cpp   ← 17 tests
+    ├── test_phase2.cpp   ← 11 tests
+    └── test_phase3.cpp   ← 13 tests
+```
 
 ## 제약 사항
 - C++ 표준: Visual Studio 기본 설정 유지
