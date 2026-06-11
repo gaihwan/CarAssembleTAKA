@@ -27,4 +27,3 @@ packages/
 
 # Claude Code internal files
 .claude/
-temp_docs/
