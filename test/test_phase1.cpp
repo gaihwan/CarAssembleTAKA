@@ -1,25 +1,9 @@
 // Phase 1 Unit Tests — test_phase1.cpp
-// PLANS.md Phase 1-2, 1-3 검증
-// 빌드: Debug 구성 (_DEBUG 정의)
+// Phase 2 이후 업데이트: extern stack[] → CarConfig API 사용
 
 #include <gtest/gtest.h>
-
-// main.cpp 에 정의된 전역 심볼 참조
-extern int stack[];
-
-// QuestionType 인덱스 (main.cpp 와 값 동일)
-enum QuestionType { CarType_Q=0, Engine_Q=1, brakeSystem_Q=2, SteeringSystem_Q=3, Run_Test=4 };
-enum CarType      { SEDAN=1, SUV=2, TRUCK=3 };
-enum Engine       { GM=1, TOYOTA=2, WIA=3, BROKEN=4 };
-enum brakeSystem  { MANDO=1, CONTINENTAL=2, BOSCH_B=3 };
-enum SteeringSystem { BOSCH_S=1, MOBIS=2 };
-
-extern bool isSedanContinentalConflict();
-extern bool isSuvToyotaConflict();
-extern bool isTruckWiaConflict();
-extern bool isTruckMandoConflict();
-extern bool isBoschBrakeWithoutBoschSteer();
-extern bool isValidCheck();
+#include "../car_config.h"
+#include "../validator.h"
 
 // -----------------------------------------------
 // [P1-T1] BROKEN enum 값 검증 (Phase 1-2)
@@ -34,63 +18,73 @@ TEST(EnumTest, BrokenEngine_IsDefinedAsValue4)
 // -----------------------------------------------
 TEST(RuleTest, SedanContinental_DetectsConflict)
 {
-    stack[CarType_Q]     = SEDAN;
-    stack[brakeSystem_Q] = CONTINENTAL;
-    EXPECT_TRUE(isSedanContinentalConflict());
+    CarConfig c;
+    c.carType = SEDAN;
+    c.brake   = CONTINENTAL;
+    EXPECT_TRUE(isSedanContinentalConflict(c));
 }
 TEST(RuleTest, SedanMando_NoConflict)
 {
-    stack[CarType_Q]     = SEDAN;
-    stack[brakeSystem_Q] = MANDO;
-    EXPECT_FALSE(isSedanContinentalConflict());
+    CarConfig c;
+    c.carType = SEDAN;
+    c.brake   = MANDO;
+    EXPECT_FALSE(isSedanContinentalConflict(c));
 }
 TEST(RuleTest, SuvToyota_DetectsConflict)
 {
-    stack[CarType_Q] = SUV;
-    stack[Engine_Q]  = TOYOTA;
-    EXPECT_TRUE(isSuvToyotaConflict());
+    CarConfig c;
+    c.carType = SUV;
+    c.engine  = TOYOTA;
+    EXPECT_TRUE(isSuvToyotaConflict(c));
 }
 TEST(RuleTest, SuvGM_NoConflict)
 {
-    stack[CarType_Q] = SUV;
-    stack[Engine_Q]  = GM;
-    EXPECT_FALSE(isSuvToyotaConflict());
+    CarConfig c;
+    c.carType = SUV;
+    c.engine  = GM;
+    EXPECT_FALSE(isSuvToyotaConflict(c));
 }
 TEST(RuleTest, TruckWia_DetectsConflict)
 {
-    stack[CarType_Q] = TRUCK;
-    stack[Engine_Q]  = WIA;
-    EXPECT_TRUE(isTruckWiaConflict());
+    CarConfig c;
+    c.carType = TRUCK;
+    c.engine  = WIA;
+    EXPECT_TRUE(isTruckWiaConflict(c));
 }
 TEST(RuleTest, TruckGM_NoConflict)
 {
-    stack[CarType_Q] = TRUCK;
-    stack[Engine_Q]  = GM;
-    EXPECT_FALSE(isTruckWiaConflict());
+    CarConfig c;
+    c.carType = TRUCK;
+    c.engine  = GM;
+    EXPECT_FALSE(isTruckWiaConflict(c));
 }
 TEST(RuleTest, TruckMando_DetectsConflict)
 {
-    stack[CarType_Q]     = TRUCK;
-    stack[brakeSystem_Q] = MANDO;
-    EXPECT_TRUE(isTruckMandoConflict());
+    CarConfig c;
+    c.carType = TRUCK;
+    c.brake   = MANDO;
+    EXPECT_TRUE(isTruckMandoConflict(c));
 }
 TEST(RuleTest, TruckBosch_NoConflict)
 {
-    stack[CarType_Q]     = TRUCK;
-    stack[brakeSystem_Q] = BOSCH_B;
-    EXPECT_FALSE(isTruckMandoConflict());
+    CarConfig c;
+    c.carType = TRUCK;
+    c.brake   = BOSCH_B;
+    EXPECT_FALSE(isTruckMandoConflict(c));
 }
 TEST(RuleTest, BoschBrakeWithMobis_DetectsConflict)
 {
-    stack[brakeSystem_Q]    = BOSCH_B;
-    stack[SteeringSystem_Q] = MOBIS;
-    EXPECT_TRUE(isBoschBrakeWithoutBoschSteer());
+    CarConfig c;
+    c.brake    = BOSCH_B;
+    c.steering = MOBIS;
+    EXPECT_TRUE(isBoschBrakeWithoutBoschSteer(c));
 }
 TEST(RuleTest, BoschBrakeWithBoschSteer_NoConflict)
 {
-    stack[brakeSystem_Q]    = BOSCH_B;
-    stack[SteeringSystem_Q] = BOSCH_S;
-    EXPECT_FALSE(isBoschBrakeWithoutBoschSteer());
+    CarConfig c;
+    c.brake    = BOSCH_B;
+    c.steering = BOSCH_S;
+    EXPECT_FALSE(isBoschBrakeWithoutBoschSteer(c));
 }
 
 // -----------------------------------------------
@@ -98,49 +92,31 @@ TEST(RuleTest, BoschBrakeWithBoschSteer_NoConflict)
 // -----------------------------------------------
 TEST(ValidCheckTest, AllValid_ReturnsTrue)
 {
-    stack[CarType_Q]        = SEDAN;
-    stack[Engine_Q]         = GM;
-    stack[brakeSystem_Q]    = MANDO;
-    stack[SteeringSystem_Q] = BOSCH_S;
-    EXPECT_TRUE(isValidCheck());
+    CarConfig c{ SEDAN, GM, MANDO, BOSCH_S };
+    EXPECT_TRUE(isValidCheck(c));
 }
 TEST(ValidCheckTest, Rule1_SedanContinental_ReturnsFalse)
 {
-    stack[CarType_Q]        = SEDAN;
-    stack[Engine_Q]         = GM;
-    stack[brakeSystem_Q]    = CONTINENTAL;
-    stack[SteeringSystem_Q] = BOSCH_S;
-    EXPECT_FALSE(isValidCheck());
+    CarConfig c{ SEDAN, GM, CONTINENTAL, BOSCH_S };
+    EXPECT_FALSE(isValidCheck(c));
 }
 TEST(ValidCheckTest, Rule2_SuvToyota_ReturnsFalse)
 {
-    stack[CarType_Q]        = SUV;
-    stack[Engine_Q]         = TOYOTA;
-    stack[brakeSystem_Q]    = MANDO;
-    stack[SteeringSystem_Q] = BOSCH_S;
-    EXPECT_FALSE(isValidCheck());
+    CarConfig c{ SUV, TOYOTA, MANDO, BOSCH_S };
+    EXPECT_FALSE(isValidCheck(c));
 }
 TEST(ValidCheckTest, Rule3_TruckWia_ReturnsFalse)
 {
-    stack[CarType_Q]        = TRUCK;
-    stack[Engine_Q]         = WIA;
-    stack[brakeSystem_Q]    = CONTINENTAL;
-    stack[SteeringSystem_Q] = BOSCH_S;
-    EXPECT_FALSE(isValidCheck());
+    CarConfig c{ TRUCK, WIA, CONTINENTAL, BOSCH_S };
+    EXPECT_FALSE(isValidCheck(c));
 }
 TEST(ValidCheckTest, Rule4_TruckMando_ReturnsFalse)
 {
-    stack[CarType_Q]        = TRUCK;
-    stack[Engine_Q]         = GM;
-    stack[brakeSystem_Q]    = MANDO;
-    stack[SteeringSystem_Q] = BOSCH_S;
-    EXPECT_FALSE(isValidCheck());
+    CarConfig c{ TRUCK, GM, MANDO, BOSCH_S };
+    EXPECT_FALSE(isValidCheck(c));
 }
 TEST(ValidCheckTest, Rule5_BoschBrakeWithMobis_ReturnsFalse)
 {
-    stack[CarType_Q]        = SEDAN;
-    stack[Engine_Q]         = GM;
-    stack[brakeSystem_Q]    = BOSCH_B;
-    stack[SteeringSystem_Q] = MOBIS;
-    EXPECT_FALSE(isValidCheck());
+    CarConfig c{ SEDAN, GM, BOSCH_B, MOBIS };
+    EXPECT_FALSE(isValidCheck(c));
 }
