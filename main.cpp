@@ -1,5 +1,5 @@
 // CarAssemble - main.cpp
-// Phase 2: 파일 분리 완료. main()은 UI 루프만 담당.
+// Phase 3: CarAssembler + CarValidator 사용. main()은 UI 루프만 담당.
 
 #ifdef _DEBUG
 
@@ -17,7 +17,8 @@ int main()
 #include <string.h>
 #include <stdlib.h>
 #include "car_config.h"
-#include "car_runner.h"
+#include "CarValidator.h"
+#include "CarAssembler.h"
 
 #define CLEAR_SCREEN "\033[H\033[2J"
 
@@ -34,7 +35,8 @@ int main()
 {
     char buf[100];
     int step = CarType_Q;
-    CarConfig config;
+    CarValidator validator;
+    CarAssembler assembler(&validator);
 
     while (1)
     {
@@ -145,7 +147,7 @@ int main()
 
         if (answer == 0 && step == Run_Test)
         {
-            config = CarConfig{};
+            assembler.reset();
             step = CarType_Q;
             continue;
         }
@@ -157,38 +159,38 @@ int main()
 
         if (step == CarType_Q)
         {
-            selectCarType(config, answer);
+            assembler.selectCarType(answer);
             delay(800);
             step = Engine_Q;
         }
         else if (step == Engine_Q)
         {
-            selectEngine(config, answer);
+            assembler.selectEngine(answer);
             delay(800);
             step = brakeSystem_Q;
         }
         else if (step == brakeSystem_Q)
         {
-            selectBrakeSystem(config, answer);
+            assembler.selectBrakeSystem(answer);
             delay(800);
             step = SteeringSystem_Q;
         }
         else if (step == SteeringSystem_Q)
         {
-            selectSteeringSystem(config, answer);
+            assembler.selectSteeringSystem(answer);
             delay(800);
             step = Run_Test;
         }
         else if (step == Run_Test && answer == 1)
         {
-            runCar(config);
+            assembler.runCar();
             delay(2000);
         }
         else if (step == Run_Test && answer == 2)
         {
             printf("Test...\n");
             delay(1500);
-            runTest(config);
+            assembler.runTest();
             delay(2000);
         }
     }

@@ -124,6 +124,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="car_runner.cpp" />
+    <ClCompile Include="CarAssembler.cpp" />
+    <ClCompile Include="CarValidator.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="validator.cpp" />
     <ClCompile Include="test\test_phase1.cpp">
@@ -132,10 +134,16 @@
     <ClCompile Include="test\test_phase2.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild>
     </ClCompile>
+    <ClCompile Include="test\test_phase3.cpp">
+      <ExcludedFromBuild Condition="'$(Configuration)'=='Release'">true</ExcludedFromBuild>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="car_config.h" />
     <ClInclude Include="car_runner.h" />
+    <ClInclude Include="CarAssembler.h" />
+    <ClInclude Include="CarValidator.h" />
+    <ClInclude Include="IValidator.h" />
     <ClInclude Include="validator.h" />
   </ItemGroup>
   <ItemGroup>
